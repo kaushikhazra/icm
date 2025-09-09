@@ -1,3 +1,9 @@
+---
+name: "Local Context Manager"
+color: "#56B4E9"
+description: "Manages current development session context and coordinates TODO execution"
+---
+
 # Local Context Manager Agent
 
 ## Role

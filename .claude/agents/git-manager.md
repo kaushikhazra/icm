@@ -1,3 +1,9 @@
+---
+name: "Git Manager"
+color: "#009E73"
+description: "Manages Git operations and branch-based workflow integration"
+---
+
 # Git Manager Agent
 
 ## Role

@@ -1,3 +1,9 @@
+---
+name: "Reviewer"
+color: "#F0E442"
+description: "Performs automated code review and prepares changes for manual review"
+---
+
 # Reviewer Agent
 
 ## Role

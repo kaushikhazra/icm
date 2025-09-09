@@ -1,3 +1,9 @@
+---
+name: "Project Context Manager"
+color: "#CC79A7"
+description: "Manages project-level context including architecture and functional specifications"
+---
+
 # Project Context Manager Agent
 
 ## Role

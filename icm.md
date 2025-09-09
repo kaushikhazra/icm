@@ -282,7 +282,7 @@ The Incremental Context Method is primarily intended for Claude Code. The system
             ctx-function.md
       ```
 - **Feature Context Manager:** This agent manages the context of the individual features. The primary function of this agent is:
-   - Pulls a story or an issue from Git Lab repository associated to a branch name.
+   - Pulls a story or an issue from Git Lab repository associated to a branch name, or from a file provided by the user.
    - Create and maintain a functional context of the story.
    - Create and maintain an architectural context of the story.
    - Breaks the story into a set of TODOs.

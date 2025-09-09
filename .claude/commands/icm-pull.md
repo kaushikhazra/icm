@@ -1,9 +1,9 @@
 ---
 description: Creates or switches to feature branch and initializes feature context
-argument-hint: [branch-name]
+argument-hint: [branch-name] [optional-story-file-path]
 ---
 ## Context
-This command creates or switches to a feature branch and initializes the feature context using the Feature Context Manager and Git Manager agents. This sets up the development environment for working on a specific feature or story.
+This command creates or switches to a feature branch and initializes the feature context using the Feature Context Manager and Git Manager agents. This sets up the development environment for working on a specific feature or story. The feature context can be created from GitLab issues/stories or from a user-provided story file.
 
 ## Task
 Use the Task tool to launch multiple agents in coordination:
@@ -12,7 +12,8 @@ Use the Task tool to launch multiple agents in coordination:
 **Supporting Agent**: git-manager
 
 **Agent Task**: Initialize feature development environment
-**Branch Name**: $ARGUMENTS
+**Branch Name**: First argument from $ARGUMENTS
+**Story Source**: Second argument from $ARGUMENTS (optional file path)
 **Instructions**:
 
 **Git Manager Tasks**:
@@ -25,18 +26,20 @@ Use the Task tool to launch multiple agents in coordination:
 
 **Feature Context Manager Tasks**:
 1. Create feature directory structure at `.claude/features/[branch-name]/`
-2. If GitLab integration is available:
-   - Fetch associated issue/story from GitLab using branch name
-   - Parse issue description, acceptance criteria, and requirements
-   - Extract architectural considerations from issue labels/descriptions
-3. If no GitLab integration, prompt user to provide feature requirements
+2. Determine story source:
+   - If story file path is provided, read and parse the local story file
+   - If no file path provided and GitLab integration is available, fetch associated issue/story from GitLab using branch name
+   - If neither available, prompt user to provide feature requirements
+3. Parse story content (from file or GitLab):
+   - Extract requirements, acceptance criteria, and business logic
+   - Identify architectural considerations from story content
 4. Create comprehensive feature context files:
    - `ctx-function.md`: Feature requirements and acceptance criteria
    - `ctx-arch.md`: Feature-specific architectural considerations
    - `ctx-todo.md`: Breakdown of feature into implementable TODO items
-   - `metadata.json`: Feature metadata and source information
-5. Validate context completeness and flag any missing information
-6. Provide summary of created feature context
+   - `metadata.json`: Feature metadata and source information (GitLab or file path)
+4. Validate context completeness and flag any missing information
+5. Provide summary of created feature context and source used
 
 **Coordination Requirements**:
 - Git Manager should complete branch operations before Feature Context Manager starts
