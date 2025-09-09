@@ -1,13 +1,28 @@
 ---
-description: Creates the project architecture context
-argument-hint: [path-to-arch-doc]
+description: Creates the project architecture context using Project Context Manager agent
+argument-hint: [link-to-arch-doc]
 ---
 ## Context
-This command creates an architecture context that can be used in future to understand the architecture used in this project. The architecture context is a living document
+This command initializes the project architecture context using the specialized Project Context Manager agent. The agent will process the provided document and create structured context files for future reference.
 
 ## Task
-1. Check if `ctx-arch.md` file exists in `.claude/project-context` or not
-2. If exists then tell user that the architecture context document already exists. They can use `/icm-update-proj-arch` to update the document
-3. If it does not exist then analyse the document provided by $ARGUMENTS 
-4. Create an architecture context document. This document will help you in future to understand the design principle of this project. Create the document keeping that in mind.
-5. Add the last updated date and time to the document so that you can reference it later and find out if the document is out of date or not.
+Use the Task tool to launch the project-context-manager agent with the following instructions:
+
+**Agent Task**: Initialize project architecture context
+**Document Source**: $ARGUMENTS
+**Instructions**:
+1. Process the architecture document from the provided source (Google Drive link, GitLab Wiki, or local path)
+2. Check if architecture context already exists in `.claude/project/architecture.md`
+3. If exists, inform user they should use `/icm-update-proj-arch` instead
+4. If not exists, create comprehensive architecture context including:
+   - System architecture overview
+   - Key design principles and patterns
+   - Technology stack and dependencies
+   - Component relationships and interactions
+   - Deployment architecture if available
+5. Create `.claude/project/` directory structure if needed
+6. Save structured context to `.claude/project/architecture.md`
+7. Update metadata in `.claude/project/metadata.json` with timestamp and source information
+8. Provide summary of created context to user
+
+The agent should ensure the architecture context is comprehensive and will help future development understand the project's design principles and structure.

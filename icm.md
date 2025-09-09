@@ -182,7 +182,142 @@ The Incremental Context Method is primarily intended for Claude Code. The system
 
 ```
 
+**Feature Context Manager**
+
+```   
+         +-----------+
+         | /icm-pull |
+         +-----------+
+               |
+               V
+   +-------------------------+      
+   |        SUB-AGENT        |   
+   +-------------------------+          +-------------+
+   | Feature Context Manager |  <------ | /icm-finish |
+   +-------------------------+          +-------------+
+               ^
+               |
+         +-------------+
+         | /icm-review |
+         +-------------+
+
+```
+
+**Local Context Manager**
+```
+         +-------------------+
+         |  /icm-create-code |
+         +-------------------+
+                  |
+                  V
+      +-----------------------+          +---------------+
+      |        SUB-AGENT      |  <------ | /icm-continue |
+      +-----------------------+          +---------------+
+      | Local Context Manager |  <----+
+      +-----------------------+       |     +----------------------------+
+                  ^                    +--- | /icm-redo [what to change] |
+                  |                         +----------------------------+
+                  |
+            +-------------+
+            | /icm-review |
+            +-------------+
+```
+
+**Git Manager**
+```      
+         +-------------------------+
+         | /icm-pull [branch name] |
+         +-------------------------+
+                     |
+                     V
+           +-----------------------+          +-------------+
+           |        SUB-AGENT      |  <------ | /icm-review |
+           +-----------------------+          +-------------+
+           |      Git Manager      |   
+           +-----------------------+ 
+
+```
+
+**Code Manager**
+```
+         +-------------------------+
+         |    /icm-create-code     |
+         +-------------------------+
+                     |
+                     V  
+          +-----------------------+         
+          |        SUB-AGENT      |        +----------------+                     
+          +-----------------------+  <---- |  /icm-continue |                 
+          |         Coder         |        +----------------+
+          +-----------------------+ 
+                     ^
+                     |
+         +-----------------------------+
+         |  /icm-redo [what to change] |
+         +-----------------------------+
+
+```
+
+**Reviewer Manager**
+```
+          +-----------------------+         
+          |        SUB-AGENT      |        +----------------+                     
+          +-----------------------+  <---- |  /icm-review   |                 
+          |         Reviewer      |        +----------------+
+          +-----------------------+ 
+
+```
+
+**Functions of the Agents**
+
+- **Project Context Management:** This agent manages the overall context of the project. The primary function of this agent is:
+   - Keep an architecture context for the project. This context is used in during the implementation of the code.
+   - Keep a functional context of the project. This context is referenced along with the feature's function context to implement the business logic.
+   - Keep a change log of both architecture context and functional context. This will provide the agent an idea when the context was last updated.
+   - Maintains the project context in the following folder and file structure
+      ```
+      .claude\
+         project\
+            ctx-arch.md
+            ctx-function.md
+      ```
+- **Feature Context Manager:** This agent manages the context of the individual features. The primary function of this agent is:
+   - Pulls a story or an issue from Git Lab repository associated to a branch name.
+   - Create and maintain a functional context of the story.
+   - Create and maintain an architectural context of the story.
+   - Breaks the story into a set of TODOs.
+   - Keep a change log of both the contexts so that it can compare changes with the code.
+   - Maintains context per feature in the following folder structure. The feature name is equal to the branch name
+      ```
+      .claude\
+         features\
+            feature-1\
+               ctx-function.md
+               ctx-arch.md
+               ctx-todo.md
+            feature-2\
+               ctx-function.md
+               ctx-arch.md
+               ctx-todo.md
+
+      ```
+- **Local Context Manager:** This agent maintains the TODOs for the currently implementing features.
+   - Gets the currently implementing feature from the current branch name
+   - Implement the code change for one TODO at a time.
+   - After every TODO it stops and lets user review the code change.
+   - If user says to continue then marks the current todo complete and move to next todo.
+   - If user says to redo then redos the todo again after removing the implemented code.
+   - Updates the context information after every user interaction.
+   - Maintains the context in the following folder and file structure
+      ```
+      .claude\
+         local\
+            local-context.md [ contains: current feature, and current todo item, with last updated date and time]
+      ```
+
 **Key Technologies:**
+- Claude Slash Command
+- Claude Sub-agent
 
 **Integration Points:** Directly into the project using `.claude/`
 
