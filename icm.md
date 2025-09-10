@@ -143,6 +143,7 @@ The Incremental Context Method is primarily intended for Claude Code. The system
    - **Project Context Manager**
    - **Feature Context Manager**
    - **Local Context Manager**
+- **User Story Manager**
 - **Git Manager**
 - **Code Manager**
    - **Coder**
@@ -153,6 +154,7 @@ The Incremental Context Method is primarily intended for Claude Code. The system
 - `/icm-update-proj-arch`
 - `/icm-init-proj-function [link to the document]`
 - `/icm-update-proj-function`
+- `/icm-create-user-stories`
 - `/icm-pull [branch name]`
 - `/icm-create-code`
 - `/icm-continue`
@@ -221,6 +223,21 @@ The Incremental Context Method is primarily intended for Claude Code. The system
             +-------------+
             | /icm-review |
             +-------------+
+```
+
+**User Story Manager**
+```
+         +-------------------+
+         |  /icm-create-code |
+         +-------------------+
+                  |
+                  V
+       +-----------------------+ 
+       |        SUB-AGENT      | 
+       +-----------------------+ 
+       |   User Story Manager  | 
+       +-----------------------+      
+
 ```
 
 **Git Manager**
@@ -301,6 +318,24 @@ The Incremental Context Method is primarily intended for Claude Code. The system
                ctx-todo.md
 
       ```
+
+- **User Story Manager:** This agent creates or updates a set of user stories from a given document.
+   - The agent creates and maintains a set of user stories
+   - User provides two documents
+      - The story template
+      - The functional document
+   - The agent uses the user story template to create a set of user stories from the functional document
+   - The agent should always use a numerical ID for the user stories (1, 2, 3, ..., n)
+   - Maintains the user stories in the following folder structure.
+      ```
+      .claude\
+         user-stories\
+            1-user-story-title.md
+            2-user-story-title.md
+            ...
+            n-user-story
+      ```
+
 - **Local Context Manager:** This agent maintains the TODOs for the currently implementing features.
    - Gets the currently implementing feature from the current branch name
    - Implement the code change for one TODO at a time.
