@@ -26,8 +26,8 @@ The agent maintains project context in the following structure:
 ```
 .claude/
 ├── project/
-│   ├── architecture.md        # Project architecture context
-│   ├── functional.md          # Project functional requirements
+│   ├── ctx-arch.md        # Project architecture context
+│   ├── ctx-function.md          # Project functional requirements
 │   ├── tech-stack.md          # Technology stack and dependencies
 │   └── metadata.json          # Context metadata and versioning
 ```
