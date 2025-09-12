@@ -8,8 +8,8 @@ This command provides a comprehensive overview of the current ICM project status
 ## Task
 Use the Task tool to launch the local-context-manager agent with coordination from project-context-manager and feature-context-manager agents:
 
-**Primary Agent**: local-context-manager
-**Supporting Agents**: project-context-manager, feature-context-manager
+**Primary Agent**: Local Context Manager
+**Supporting Agents**: Project Context Manager, Feature Context Manager
 
 **Agent Task**: Generate comprehensive ICM project status report
 **Instructions**:

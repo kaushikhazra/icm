@@ -5,7 +5,7 @@
 - **Date:** 2025-09-05
 - **Author(s):** Kaushik Hazra
 - **Status:** Draft
-- **Last Updated:** 2025-09-05
+- **Last Updated:** 2025-09-12
 
 ## Executive Summary
 **One-sentence description:** A method to maintain context for AI Coding Assistants
@@ -86,9 +86,13 @@ This is a context management system for incremental development. Important featu
 - `/icm-init-proj-arch [link to the document]`. The link to the document could be Google Drive link, Gitlab Wiki link, or simple path to another folder.
 
 **Update Project Architecture Context**
-- `/icm-update-proj-arch`
-   - It will download the new project architecture
-   - Replace the context with new architecture context
+- `/icm-update-proj-arch [link-to-arch-doc]`
+   - If document link provided: Process new architecture document from the provided source
+   - If no arguments: Refresh from last known architecture document source
+   - ALSO scans actual codebase to identify implementation changes
+   - Integrates both document updates and code analysis findings
+   - Updates architecture context with comprehensive view of design + implementation
+   - Reports any gaps between documented design and actual code
 
 **Create Project Functional Context**
 - `/icm-init-proj-function [link to the document]`. The link to the document could be Google Drive link, Gitlab Wiki link, or simple path to another folder
@@ -116,8 +120,14 @@ This is a context management system for incremental development. Important featu
 
 **Redo Coding**
 - `/icm-redo [what to change]`
-   - If it is a coding style change ICM will update the coding style context
-   - If it is a wrong implementation ICM will update the feature context
+   - Primary agent: **Coder** (handles actual implementation work)
+   - Supporting agent: **Local Context Manager** (provides context and updates status)
+   - Coder coordinates with Local Context Manager to get context
+   - Coder reverts and re-implements the TODO with user feedback
+   - Local Context Manager updates relevant contexts based on feedback type:
+     - Coding style changes: Updates project coding style context
+     - Wrong implementation: Updates feature context or TODO details
+     - Requirement clarification: Updates functional context
 
 
 **Save intermediate state**
@@ -169,21 +179,33 @@ The Incremental Context Method is primarily intended for Claude Code. The system
 
 **Project Context Management**
 ```
-+--------------------------------------------+    +-----------------------+
-| /icm-init-proj-arch [link to the document] |    | /icm-update-proj-arch |
-+--------------------------------------------+    +-----------------------+
++--------------------------------------------+    +---------------------------------------+
+| /icm-init-proj-arch [link to the document] |    | /icm-update-proj-arch [link-to-doc]  |
++--------------------------------------------+    +---------------------------------------+
                    |                                        |
-                   v                                        |
-      +-----------------------------+                       |
-      |        SUB-AGENT            | <---------------------+
-      +-----------------------------+ <--------------------------+
-      |   Project Context Manager   | <---------------------+    |    +-----------------------------+
-      +-----------------------------+                       |    +--- | /icm-reverse-engg-proj-arch |
-                  ^                                         |         +-----------------------------+
-                  |                                         |
-+------------------------------------------------+   +---------------------------+
-| /icm-init-proj-function [link to the document] |   | /icm-update-proj-function |
-+------------------------------------------------+   +---------------------------+      
+                   v                                        v
+      +-----------------------------+    +-----------------------------+
+      |        SUB-AGENT            |    |        SUB-AGENT            |
+      +-----------------------------+    +-----------------------------+ 
+      |   Project Context Manager   |    |   Project Context Manager   | (Primary)
+      +-----------------------------+    +-----------------------------+
+                  ^                                        ^
+                  |                                        |
++------------------------------------------------+       |    +-----------------------------+
+| /icm-init-proj-function [link to the document] |       +--- |      Code Analyzer          | (Supporting)
++------------------------------------------------+            +-----------------------------+
+                  |                                        ^
+                  v                                        |
+      +-----------------------------+              +-----------------------------+
+      |        SUB-AGENT            |              | /icm-reverse-engg-proj-arch |
+      +-----------------------------+              +-----------------------------+
+      |   Project Context Manager   |
+      +-----------------------------+
+                  ^
+                  |
+            +---------------------------+
+            | /icm-update-proj-function |
+            +---------------------------+
 
 ```
 
@@ -193,13 +215,20 @@ The Incremental Context Method is primarily intended for Claude Code. The system
          | /icm-reverse-engg-proj-arch |
          +-----------------------------+
                         |
-                        | [1..n]
-                        V
+                        v
          +-----------------------------+
          |        SUB-AGENT            |
          +-----------------------------+
-         |   Code Analyzer             |
-         +-----------------------------+ 
+         |     Code Analyzer           | (Primary)
+         +-----------------------------+
+                        |
+                        | coordinates with
+                        v
+         +-----------------------------+
+         |        SUB-AGENT            |
+         +-----------------------------+
+         |   Project Context Manager   | (Supporting)
+         +-----------------------------+
 ```
 
 
@@ -280,17 +309,32 @@ The Incremental Context Method is primarily intended for Claude Code. The system
          |    /icm-create-code     |
          +-------------------------+
                      |
-                     V  
+                     v  
           +-----------------------+         
           |        SUB-AGENT      |        +----------------+                     
           +-----------------------+  <---- |  /icm-continue |                 
           |         Coder         |        +----------------+
           +-----------------------+ 
-                     ^
-                     |
+
+
          +-----------------------------+
          |  /icm-redo [what to change] |
          +-----------------------------+
+                        |
+                        v
+           +-----------------------+
+           |        SUB-AGENT      |
+           +-----------------------+
+           |        Coder          | (Primary)
+           +-----------------------+
+                        |
+                        | coordinates with
+                        v
+           +-----------------------+
+           |        SUB-AGENT      |
+           +-----------------------+
+           | Local Context Manager | (Supporting)
+           +-----------------------+
 
 ```
 
@@ -378,14 +422,14 @@ The Incremental Context Method is primarily intended for Claude Code. The system
 **Function of the Slash Commands**
 - **`/icm-init-proj-arch [link to the document]`:** Command to initialize the project architecture context.
 - **`/icm-reverse-engg-proj-arch`:** Command to reverse engineer the architecture from the code itself. 
-- **`/icm-update-proj-arch`:** Command to update the project architecture context.
+- **`/icm-update-proj-arch [link-to-arch-doc]`:** Command to update the project architecture context from document source AND scan codebase for implementation changes. Integrates both sources for comprehensive architecture documentation.
 - **`/icm-init-proj-function [link to the document]`:** Command to initialize the project's functional context.
 - **`/icm-update-proj-function`:** Command to update the project's functional context.
 - **`/icm-create-user-stories [story-template] [functional-document]`:** Command to create user story from a given document with a given template.
 - **`/icm-pull [branch name]`:** Command to pull a branch from git repository, or create a branch from a file based user story. It also crates the feature contexts.
 - **`/icm-create-code`:** Command to start creating code.
 - **`/icm-continue`:** Command to continue creating code.
-- **`/icm-redo [what to change]`:** Command to redo a code with instruction to what needs to be changed.
+- **`/icm-redo [what to change]`:** Command to redo current TODO implementation based on user feedback. Uses Coder agent (primary) for implementation and Local Context Manager (supporting) for context management and status updates.
 - **`/icm-review`:** Command to review the created code.
 - **`/icm-finish`:** Command to finalize the code and clear the feature context.
 - **`/icm-status`:** Command to provide the current status of the project.
@@ -503,4 +547,5 @@ The Incremental Context Method is primarily intended for Claude Code. The system
 ---
 
 **Document Review History:**
-- [2025-09-06] - [Version: 1.0] - [Initial Draft] - [Chris Stremple] 
+- [2025-09-06] - [Version: 1.0] - [Initial Draft] - [Chris Stremple]
+- [2025-09-12] - [Version: 1.1] - [Updated agent coordination and slash command behavior] - [ICM System Update] 
